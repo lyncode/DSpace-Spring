@@ -1,0 +1,59 @@
+{% extends '../layout.html.twig' %}
+{% block javascripts %}
+{% if not(error) %}
+<script type="text/javascript">
+require([
+    'jquery',
+    'lyncode/services/install'     
+], function ($, InstallService) {
+	var service = new InstallService({
+		errorMessage = '{{ "Something went wrong. Please refresh your browser." | trans }}',
+		okCallback: function () {
+			$('#progressBar').hide();
+			$('#confirmBox').show();
+		} // 
+	});
+	
+	service.install();
+});
+</script>
+{% endif %}
+{% endblock %}
+{% block bodyContent %}
+<div class="text-center">
+	<div class="nice-container navigate null-bottom-padding">
+		<h1>{{ 'Final' | translate }}</h1>
+		<hr />
+		{% if error %}
+		<div class="alert alert-error">
+			<b>{{ 'Error' | trans }}</b> {{ error | trans }}
+		</div>
+		{% else %}
+		<div id="progressBar">
+			<h3>{{ 'Installing...' | trans }}</h3>
+			<div class="progress progress-striped active">
+				<div class="bar" style="width: 60%;"></div>
+			</div>
+		</div>
+		<div id="confirmBox" style="display: none;">
+			<div class="alert alert-success">
+				<b>{{ 'Success' | trans }}</b> {{ "DSpace installed successfully" | trans }}
+			</div>
+			
+			<form class="form-horizontal" method="POST"
+				action="{{ concat('/install/step/', nextStep) | path }}">
+				<div class="span6">
+					<div class="parent pull-right">
+						<button type="submit" class="btn btn-large btn-primary">{{ 'Finish' | trans }}</button>
+					</div>
+					<div class="clear"></div>
+					<div class="vertical-space"></div>
+				</div>
+			</form>
+		</div>
+		{% endif %}
+		<hr />
+	</div>
+</div>
+<div class="vertical-space"></div>
+{% endblock %}

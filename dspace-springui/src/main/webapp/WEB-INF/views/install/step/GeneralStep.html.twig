@@ -1,0 +1,68 @@
+{% extends '../layout.html.twig' %}
+{% block bodyContent %}
+<div class="text-center">
+	<div class="nice-container navigate null-bottom-padding">
+		<h1>{{ 'General Information' | translate }}</h1>
+		<hr />
+		{% if error %}
+		<div class="alert alert-error">
+			<b>{{ 'Error' | trans }}</b> {{ error | trans }}
+		</div>
+		{% endif %}
+		<form class="form-horizontal" method="POST"
+			action="{{ concat('/install/step/', nextStep) | path }}">
+			<div class="span6">
+				<div class="row-fluid">
+					<div class="control-group">
+						<label class="control-label" for="name">{{ 'Repository Name' | trans }}</label>
+						<div class="controls">
+							<input class="input-block-level" required type="text" id="name"
+								name="name" placeholder="{{ 'Repository Name' | trans }}"
+								value="{{ request.getParameter('name') }}" />
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="url">{{ 'URL' | trans }}</label>
+						<div class="controls">
+							<input type="text" class="input-block-level" required id="url"
+								name="url" placeholder="http://www.example.com:8080"
+								value="{{ request.getParameter('url') }}" />
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="default-language">{{ 'Default Language' | trans }}</label>
+						<div class="controls">
+							<select class="input-block-level" id="default-language"
+								name="default-language"> 
+								{% for lang in possibleLanguages %}
+								<option {% if (lang.code == request.getParameter('default-language')) %}selected="selected"{% endif %} value="{{ lang.code }}">{{ lang.label }}</option>
+								{% endfor %}
+							</select>
+						</div>
+					</div>
+					<div class="control-group">
+						<label class="control-label" for="available-languages">{{ 'Available Languages' | trans }}</label>
+						<div class="controls">
+							<select multiple="multiple" class="input-block-level"
+								id="available-languages" name="available-languages"> 
+								{% set available = request.getAttribute('availableLanguages') %}
+								{% for lang in possibleLanguages %}
+								<option {% if (available.contains(lang.code)) %}selected="selected"{% endif %} value="{{ lang.code }}">{{ lang.label }}</option> 
+								{% endfor %}
+							</select>
+						</div>
+					</div>
+				</div>
+				<hr />
+	
+				<div class="parent pull-right">
+					<button type="submit" class="btn btn-large btn-primary">Step Forward</button>
+				</div>
+				<div class="clear"></div>
+				<div class="vertical-space"></div>
+			</div>
+		</form>
+	</div>
+</div>
+<div class="vertical-space"></div>
+{% endblock %}

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd 
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/mvc
+	http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd">
+ 	
+	<context:component-scan base-package="org.dspace.springui.web.controller" />
+	<context:spring-configured />
+	
+ 	<mvc:annotation-driven />
+ 	<mvc:interceptors>
+ 		<mvc:interceptor>
+ 			<mvc:mapping path="/**"/>
+ 			<bean class="org.dspace.springui.web.interceptor.InstallationInterceptor" />
+ 		</mvc:interceptor>
+ 	</mvc:interceptors>
+ 	
+ 	<bean id="theme" class="com.lyncode.jtwig.mvc.DefaultThemeResolver">
+ 		<property name="theme">
+ 			<value></value>
+ 		</property>
+ 	</bean>
+ 	
+ 	<bean id="invokeResolver" class="com.lyncode.jtwig.mvc.DefaultInvokeResolver">
+ 		<property name="package">
+ 			<value>org.dspace.springui.web.invokers</value>
+ 		</property>
+ 	</bean>
+	
+ 	<bean id="assetResolver" class="com.lyncode.jtwig.mvc.DefaultAssetResolver">
+ 		<property name="basePath">
+ 			<value>public</value>
+ 		</property>
+ 	</bean>
+ 	
+ 	<bean id="viewResolver" class="com.lyncode.jtwig.mvc.JtwigViewResolver">
+        <property name="prefix">
+            <value>/WEB-INF/views/</value>
+        </property>
+        <property name="suffix">
+            <value>.html.twig</value>
+        </property>
+        <property name="cached">
+        	<value>false</value>
+        </property>
+        <property name="encoding" value="UTF-8" />
+    </bean>
+    
+	<bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver" />
+</beans>

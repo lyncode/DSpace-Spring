@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.dspace</groupId>
+		<artifactId>dspace-container</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>deploy</artifactId>
+	<name>DSpace Deploy</name>
+	<url>http://maven.apache.org</url>
+	<properties>
+		<main.dir>${project.parent.basedir}</main.dir>
+		<deploy.dir>${main.dir}/dspace-distribute</deploy.dir>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.dspace</groupId>
+			<artifactId>dspace-core</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>org.dspace</groupId>
+			<artifactId>dspace-springui</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<type>war</type>
+		</dependency>
+	</dependencies>
+	
+	
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>install</id>
+						<inherited>false</inherited>
+						<phase>install</phase>
+						<configuration>
+							<tasks>
+								<delete dir="${deploy.dir}" />
+								<mkdir dir="${deploy.dir}" />
+								<mkdir dir="${deploy.dir}/webapps" />
+								<mkdir dir="${deploy.dir}/lib" />
+								<copy todir="${deploy.dir}">
+									<fileset dir="${main.dir}/dspace" includes="**" />
+								</copy>
+								<copy todir="${deploy.dir}/lib">
+									<fileset dir="${main.dir}/dspace-core/target/dependency" includes="**" />
+								</copy>
+								<!-- Copy webapps -->
+								<copy
+									file="${main.dir}/dspace-springui/target/dspace-springui-${project.version}.war"
+									toFile="${deploy.dir}/webapps/ROOT.war" />
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+	</build>
+	<packaging>pom</packaging>
+</project>

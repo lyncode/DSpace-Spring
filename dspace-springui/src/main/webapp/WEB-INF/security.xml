@@ -1,0 +1,54 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:beans="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+	http://www.springframework.org/schema/security
+	http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+ 
+	<http auto-config="false" entry-point-ref="authenticationEntryPoint">
+		<!-- Filters -->
+		<custom-filter position="FORM_LOGIN_FILTER" ref="springuiUserPassFilter" />
+		<!-- Rules -->
+		<intercept-url pattern="/admin/*" access="ROLE_ADMIN" />
+		<!-- Handlers -->
+		<access-denied-handler ref="accessDeniedHandler" />
+		<logout logout-url="/logout" logout-success-url="/" />
+	</http>
+
+	<beans:bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">
+		<beans:property name="loginFormUrl" value="/" />
+	</beans:bean> 
+
+	<beans:bean id="accessDeniedHandler" class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
+		<beans:property name="errorPage" value="/security/denied" />
+	</beans:bean>
+	
+	<beans:bean id="authenticationSuccessHandler" class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
+		<beans:property name="alwaysUseDefaultTargetUrl" value="false" />
+		<beans:property name="defaultTargetUrl" value="/" />		
+	</beans:bean>
+	
+	<beans:bean id="authenticationFailureHandler" class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+		<beans:property name="useForward" value="true" />
+		<beans:property name="defaultFailureUrl" value="/" />
+	</beans:bean>
+
+	<beans:bean id="springuiUserPassFilter" class="org.dspace.springui.web.security.authentication.UsernamePasswordFilter">
+		<beans:property name="authenticationManager" ref="authenticationManager" />
+		<beans:property name="authenticationSuccessHandler">
+			<beans:ref bean="authenticationSuccessHandler" />
+		</beans:property>
+		<beans:property name="authenticationFailureHandler">
+			<beans:ref bean="authenticationFailureHandler" />
+		</beans:property>
+	</beans:bean>
+
+	<beans:bean id="usernamePasswordAuthenticator" class="org.dspace.services.impl.security.authentication.UsernamePasswordAuthenticationProvider" />
+
+	<authentication-manager alias="authenticationManager">
+	  <authentication-provider ref="usernamePasswordAuthenticator" />
+	  <!-- Add more authenticators here -->
+	</authentication-manager>
+ 
+</beans:beans>

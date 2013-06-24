@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns:aop="http://www.springframework.org/schema/aop"
+ xmlns:context="http://www.springframework.org/schema/context"
+ xsi:schemaLocation="http://www.springframework.org/schema/context 
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/util 
+    http://www.springframework.org/schema/util/spring-util.xsd
+    http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/aop    
+    http://www.springframework.org/schema/aop/spring-aop.xsd">
+    
+	<context:component-scan base-package="org.dspace.orm" />
+	
+	<!-- Main Services -->
+	<bean class="org.dspace.services.impl.application.ConfigureLoggerService" />
+	<bean class="org.dspace.services.impl.application.WebApplicationService" />
+	<bean class="org.dspace.services.impl.application.ConfigurationWatcherService" />
+	<bean class="org.dspace.services.impl.application.DSpaceInstallService" />
+	
+
+	<!-- Application Services -->	
+	<bean id="configurationService" class="org.dspace.services.impl.configuration.DSpaceConfigurationService"></bean>
+	<bean id="configurationLocator" class="org.dspace.services.impl.configuration.DSpaceConfigurationLocator"></bean>
+	<bean id="contextService" class="org.dspace.services.impl.context.DSpaceContextService"></bean>
+	<bean id="authorizationService" class="org.dspace.services.impl.security.authorization.DSpaceAuthorizationService"></bean>
+	<bean id="storageService" class="org.dspace.services.impl.storage.DSpaceStorageService"></bean>
+	
+	<!-- Datasource -->
+    <bean id="dataSourceBuilder" class="org.dspace.orm.DSpaceDataSourceBuilder" />
+    <bean id="dataSource" factory-bean="dataSourceBuilder" factory-method="create" />
+    <bean id="dspaceSessionBuilder" class="org.dspace.orm.DSpaceSessionFactoryBuilder" depends-on="dataSource">
+    	<property name="dataSource">
+    		<ref bean="dataSource"/>
+    	</property>
+    </bean>
+    <bean id="sessionFactory" factory-bean="dspaceSessionBuilder" factory-method="create" />
+</beans>
