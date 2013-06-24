@@ -7,7 +7,8 @@
  */
 package org.dspace.services.api.configuration;
 
-import org.dspace.configuration.ConfigurationPropertyChangeHandler;
+import org.dspace.services.api.configuration.event.ChangeHandler;
+import org.dspace.services.api.configuration.reference.PropertyReference;
 
 
 /**
@@ -16,6 +17,16 @@ import org.dspace.configuration.ConfigurationPropertyChangeHandler;
  */
 public interface ConfigurationService {
 
+    
+    /**
+     * Convenience method - get a configuration property (setting) from 
+     * the system.
+     * 
+     * @param name the property name
+     * @return the property value OR null if none is found
+     */
+    public String getProperty(PropertyReference reference);
+    
     /**
      * Get a configuration property (setting) from the system as a 
      * specified type.
@@ -26,7 +37,7 @@ public interface ConfigurationService {
      * @return the property value OR null if none is found
      * @throws UnsupportedOperationException if the type cannot be converted to the requested type
      */
-    public <T> T getProperty(String name, Class<T> type);
+    public <T> T getProperty(PropertyReference reference, Class<T> type);
 
     /**
      * Get a configuration property (setting) from the system as a 
@@ -38,16 +49,7 @@ public interface ConfigurationService {
      * @return the property value OR null if none is found
      * @throws UnsupportedOperationException if the type cannot be converted to the requested type
      */
-    public <T> T getProperty(String name, Class<T> type, T defaultValue);
-    
-    /**
-     * Convenience method - get a configuration property (setting) from 
-     * the system.
-     * 
-     * @param name the property name
-     * @return the property value OR null if none is found
-     */
-    public String getProperty(String name);
+    public <T> T getProperty(PropertyReference reference, Class<T> type, T defaultValue);
 
     
     /**
@@ -57,9 +59,23 @@ public interface ConfigurationService {
      * @param handler
      * @return
      */
-    public boolean addWatchHandler (ConfigurationPropertyChangeHandler handler, String... name);
+    public boolean addWatchHandler (ChangeHandler handler, PropertyReference... references);
     
-    public boolean removeWatchHandler (ConfigurationPropertyChangeHandler handler);
+    /**
+     * Removes an handler
+     * 
+     * @param handler
+     * @return
+     */
+    public boolean removeWatchHandler (ChangeHandler handler);
+    
+    /**
+     * Removes an handler
+     * 
+     * @param handler
+     * @return
+     */
+    public boolean removeWatchHandler (ChangeHandler handler, PropertyReference... references);
     
     
     /**
@@ -69,7 +85,7 @@ public interface ConfigurationService {
      * @param value
      * @return
      */
-    public boolean addProperty (String name, Object value);
+    public boolean addProperty (PropertyReference reference, Object value);
     
     /**
      * Setting the property
@@ -78,5 +94,12 @@ public interface ConfigurationService {
      * @param value
      * @return
      */
-    public boolean setProperty (String name, Object value);
+    public boolean setProperty (PropertyReference name, Object value);
+    
+    /**
+     * Checks if the DSpace is installed
+     * 
+     * @return
+     */
+    public boolean isInstalled ();
 }

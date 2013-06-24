@@ -2,6 +2,7 @@ package org.dspace.services;
 
 import static org.junit.Assert.*;
 import org.dspace.services.api.configuration.ConfigurationService;
+import org.dspace.services.api.configuration.reference.PropertyReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,19 +18,19 @@ public class ConfigurationServiceTest {
 	@Test
 	public void testNullCases() {
 		assertNotNull(config);
-		assertTrue(config.getProperty("unexisting.property", Boolean.class, true));
-		assertFalse(config.getProperty("unexisting.property", Boolean.class, false));
-		assertNull(config.getProperty("unexisting.property", Boolean.class));
+		assertTrue(config.getProperty(PropertyReference.key("unexisting.property"), Boolean.class, true));
+		assertFalse(config.getProperty(PropertyReference.key("unexisting.property"), Boolean.class, false));
+		assertNull(config.getProperty(PropertyReference.key("unexisting.property"), Boolean.class));
 	}
 	
 	@Test
 	public void testEnviromentVariables () {
-		assertNotNull(config.getProperty("user.home"));
+		assertNotNull(config.getProperty(PropertyReference.key("user.home")));
 	}
 	
 	@Test
 	public void testAddProperty () { // Without configuration file setup it must not be able to add the property
-		 assertFalse(config.addProperty("test", "test"));
+		 assertFalse(config.addProperty(PropertyReference.key("test"), "test"));
 	}
 
 }

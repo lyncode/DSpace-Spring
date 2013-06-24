@@ -8,6 +8,8 @@
 package org.dspace.services.impl.security.authorization;
 
 import org.dspace.services.api.configuration.ConfigurationService;
+import org.dspace.services.api.configuration.reference.Module;
+import org.dspace.services.api.configuration.reference.PropertyReference;
 
 /**
  * This class is responsible to provide access to the configuration of the
@@ -141,7 +143,7 @@ public class DSpaceAuthorizeConfiguration {
 	}
 	
 	private boolean getBooleanProperty (String param, boolean def) {
-		Boolean b = this.config.getProperty(param, Boolean.class, Boolean.valueOf(def));
+		Boolean b = this.config.getProperty(PropertyReference.key(Module.SECURITY, param), Boolean.class, Boolean.valueOf(def));
 		if (b == null) return false;
 		else return b.booleanValue();
 	}

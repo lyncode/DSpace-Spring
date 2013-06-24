@@ -17,7 +17,7 @@
 	<!-- Main Services -->
 	<bean class="org.dspace.services.impl.application.ConfigureLoggerService" />
 	<bean class="org.dspace.services.impl.application.WebApplicationService" />
-	<bean class="org.dspace.services.impl.application.ConfigurationWatcherService" />
+	<bean class="org.dspace.services.impl.application.ConfigurationReloaderService" />
 	<bean class="org.dspace.services.impl.application.DSpaceInstallService" />
 	
 

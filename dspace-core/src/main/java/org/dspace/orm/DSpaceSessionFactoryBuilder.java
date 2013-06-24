@@ -13,11 +13,12 @@ import java.util.Properties;
 import javax.sql.DataSource;
 
 
+import org.dspace.install.model.DatabaseInformation;
 import org.dspace.orm.entity.IDSpaceObject;
 import org.dspace.services.api.configuration.ConfigurationService;
+import org.dspace.services.api.configuration.reference.Module;
+import org.dspace.services.api.configuration.reference.PropertyReference;
 import org.hibernate.SessionFactory;
-import org.hibernate.dialect.OracleDialect;
-import org.hibernate.dialect.PostgreSQLDialect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
 
@@ -26,7 +27,6 @@ import org.springframework.orm.hibernate4.LocalSessionFactoryBean;
  * 
  * @author João Melo <jmelo@lyncode.com>
  */
-@SuppressWarnings("deprecation")
 public class DSpaceSessionFactoryBuilder  {
 	@Autowired ConfigurationService config;
 	private DataSource datasource;
@@ -41,27 +41,37 @@ public class DSpaceSessionFactoryBuilder  {
 	public void setDataSource(DataSource datasource) {
 		this.datasource = datasource;
 	}
+	
+
+
+	public SessionFactory createInstall (DatabaseInformation info, DataSource datasource) throws IOException {
+		LocalSessionFactoryBean local = new LocalSessionFactoryBean();
+		local.setDataSource(datasource);
+		local.setPackagesToScan(IDSpaceObject.class.getPackage().getName());
+		Properties prop = new Properties();
+		prop.put("hibernate.dialect", info.getDialectClass().getName());
+		prop.put("hibernate.connection.autocommit", false);
+		prop.put("hibernate.current_session_context_class", "thread");
+		prop.put("hibernate.show_sql", true);
+		prop.put("hibernate.hbm2ddl.auto", "create");
+		
+		local.setHibernateProperties(prop);
+		local.afterPropertiesSet();
+		SessionFactory sessionFac = local.getObject();
+		return sessionFac;
+	}
+
 
 	public SessionFactory create () throws IOException {
-		if (!config.getProperty("dspace.installed", Boolean.class, false)) return null;
+		if (!config.isInstalled()) return null;
 		if (sessionFac == null) {
 			local = new LocalSessionFactoryBean();
 			local.setDataSource(datasource);
 			local.setPackagesToScan(IDSpaceObject.class.getPackage().getName());
 			Properties prop = new Properties();
 			
-			String dbdialect = config.getProperty("db.dialect");
-			if (dbdialect == null) {
-				// TODO: db.dialect must be defined in dspace.cfg
-				String dbname = config.getProperty("db.name");
-				if (dbname == null || !dbname.equals("oracle")) // Postgres is the default
-					prop.put("hibernate.dialect", PostgreSQLDialect.class.getName());
-				else
-					prop.put("hibernate.dialect", OracleDialect.class.getName());
-			} else {
-				prop.put("hibernate.dialect", dbdialect);
-			}
-	
+			String dbdialect = config.getProperty(PropertyReference.key(Module.DATABASE, "dialect"));
+			prop.put("hibernate.dialect", dbdialect);
 			prop.put("hibernate.connection.autocommit", false);
 			prop.put("hibernate.current_session_context_class", "thread");
 			prop.put("hibernate.show_sql", true);

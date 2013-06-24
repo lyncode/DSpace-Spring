@@ -25,6 +25,8 @@ import org.dspace.orm.dao.api.IBundleDao;
 import org.dspace.orm.entity.Bitstream;
 import org.dspace.orm.entity.Bundle;
 import org.dspace.services.api.configuration.ConfigurationService;
+import org.dspace.services.api.configuration.reference.Module;
+import org.dspace.services.api.configuration.reference.PropertyReference;
 import org.dspace.services.api.storage.StorageException;
 import org.dspace.services.api.storage.StorageService;
 import org.dspace.util.Utils;
@@ -89,7 +91,7 @@ public class DSpaceStorageService implements StorageService {
 			}
 
 			// The default value is 0
-			incoming = config.getProperty("assetstore.incoming", Integer.class, 0);
+			incoming = config.getProperty(PropertyReference.key(Module.STORAGE, "assetstore.incoming"), Integer.class, 0);
 		}
 	}
 
@@ -100,20 +102,20 @@ public class DSpaceStorageService implements StorageService {
 	 * @return File or SRBFile
 	 */
 	private GeneralFile readAssetstore(String n) {
-		String sAssetstoreDir = config.getProperty("assetstore.dir" + n);
+		String sAssetstoreDir = config.getProperty(PropertyReference.key(Module.STORAGE, "assetstore.dir" + n));
 		if (sAssetstoreDir != null)
 			return new LocalFile(sAssetstoreDir);
 		else {
-			String srbHost = config.getProperty("srb.host" + n);
+			String srbHost = config.getProperty(PropertyReference.key(Module.STORAGE, "srb.host" + n));
 			if (srbHost != null) {
-				String srbPort = config.getProperty("srb.port" + n);
-				String srbUsername = config.getProperty("srb.username" + n);
-				String srbPassword = config.getProperty("srb.password" + n);
-				String srbH = config.getProperty("srb.homedirectory" + n);
-				String srbDm = config.getProperty("srb.mdasdomainname" + n);
-				String srbD = config.getProperty("srb.defaultstorageresource"
-						+ n);
-				String srbZone = config.getProperty("srb.mcatzone" + n);
+				String srbPort = config.getProperty(PropertyReference.key(Module.STORAGE, "srb.port" + n));
+				String srbUsername = config.getProperty(PropertyReference.key(Module.STORAGE, "srb.username" + n));
+				String srbPassword = config.getProperty(PropertyReference.key(Module.STORAGE, "srb.password" + n));
+				String srbH = config.getProperty(PropertyReference.key(Module.STORAGE, "srb.homedirectory" + n));
+				String srbDm = config.getProperty(PropertyReference.key(Module.STORAGE, "srb.mdasdomainname" + n));
+				String srbD = config.getProperty(PropertyReference.key(Module.STORAGE, "srb.defaultstorageresource"
+						+ n));
+				String srbZone = config.getProperty(PropertyReference.key(Module.STORAGE, "srb.mcatzone" + n));
 				SRBAccount acc = new SRBAccount(srbHost,
 						Integer.parseInt(srbPort), srbUsername, srbPassword,
 						srbH, srbDm, srbD, srbZone);
@@ -129,7 +131,7 @@ public class DSpaceStorageService implements StorageService {
 				if (srbFileSystem == null) {
 					log.error("SRB FileSystem is null for assetstore " + n);
 				}
-				String sSRBAssetstore = config.getProperty("srb.parentdir" + n);
+				String sSRBAssetstore = config.getProperty(PropertyReference.key(Module.STORAGE, "srb.parentdir" + n));
 				if (sSRBAssetstore == null)
 					log.error("srb.parentdir is undefined for assetstore " + n);
 

@@ -5,10 +5,13 @@ import java.io.FileFilter;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.log4j.Logger;
-import org.dspace.configuration.RefreshServiceOnChangeHandler;
 import org.dspace.services.api.application.Service;
 import org.dspace.services.api.application.ServiceException;
 import org.dspace.services.api.configuration.ConfigurationService;
+import org.dspace.services.api.configuration.event.ChangeHandler;
+import org.dspace.services.api.configuration.reference.PropertyReference;
+import org.dspace.services.impl.configuration.handler.HaltServiceOnChangeHandler;
+import org.dspace.services.impl.configuration.handler.RefreshServiceOnChangeHandler;
 import org.dspace.services.impl.context.SharedApplicationContextServer;
 import org.eclipse.jetty.ajp.Ajp13SocketConnector;
 import org.eclipse.jetty.server.Connector;
@@ -18,6 +21,7 @@ import org.eclipse.jetty.server.bio.SocketConnector;
 import org.eclipse.jetty.server.handler.HandlerList;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ConfigurableApplicationContext;
 
 public class WebApplicationService implements Service {
 	private static final String ROOT_HANDLER_NAME = "root";
@@ -33,14 +37,12 @@ public class WebApplicationService implements Service {
 	
 	private Server server;
 	private Map<String, Handler> handlers;
-	private Map<String, RefreshServiceOnChangeHandler> watchHandlers;
+	private Map<String, ChangeHandler> watchHandlers;
 	private Map<String, Connector> connectors;
 
 	@Override
 	public synchronized void refresh() throws ServiceException {
-		this.destroy();
-		this.init();
-		this.start();
+		((ConfigurableApplicationContext) applicationContext).refresh();
 	}
 	
 	public synchronized void refresh (String handlerName) throws ServiceException {
@@ -103,9 +105,9 @@ public class WebApplicationService implements Service {
 
 	private boolean isWebappActive (String name) {
 		if (name.equals(ROOT_HANDLER_NAME))
-			return this.config.getProperty(this.getWebappActiveProperty(name), Boolean.class, true);
+			return this.config.getProperty(PropertyReference.key(this.getWebappActiveProperty(name)), Boolean.class, true);
 		else
-			return this.config.getProperty(this.getWebappActiveProperty(name), Boolean.class, false);
+			return this.config.getProperty(PropertyReference.key(this.getWebappActiveProperty(name)), Boolean.class, false);
 	}
 	
 	public boolean isRunning () {
@@ -127,7 +129,7 @@ public class WebApplicationService implements Service {
 	}
 	
 	private void setupAvailableWebapps () {
-		File webappDir = new File(config.getProperty("server.webapps", String.class, DEFAULT_WEBAPPS_DIR));
+		File webappDir = new File(config.getProperty(PropertyReference.key("server.webapps"), String.class, DEFAULT_WEBAPPS_DIR));
 		
 		File[] files = webappDir.listFiles(new FileFilter() {
 			@Override
@@ -154,38 +156,38 @@ public class WebApplicationService implements Service {
 				
 				handlers.put(name, webapp);
 				
-				RefreshServiceOnChangeHandler watcher = new RefreshServiceOnChangeHandler(this, this.isWebappActive(name));
-				config.addWatchHandler(watcher, this.getWebappActiveProperty(name));
+				HaltServiceOnChangeHandler watcher = new HaltServiceOnChangeHandler(this, this.isWebappActive(name));
+				config.addWatchHandler(watcher, PropertyReference.key(this.getWebappActiveProperty(name)));
 				watchHandlers.put(name, watcher);
 			}
 		}
 	}
 	
 	private void setupConnectors () {
-		int httpPort = config.getProperty("server.http.port", Integer.class, DEFAULT_HTTP_PORT);
-		if (config.getProperty("server.http", Boolean.class, true)) {
+		int httpPort = config.getProperty(PropertyReference.key("server.http.port"), Integer.class, DEFAULT_HTTP_PORT);
+		if (config.getProperty(PropertyReference.key("server.http"), Boolean.class, true)) {
 			SocketConnector connectorHTTP = new SocketConnector();
 			connectorHTTP.setPort(httpPort);
 			connectors.put("HTTP", connectorHTTP);
 		} else connectors.remove("HTTP");
 		
 		if (!watchHandlers.containsKey("server.http"))
-			watchHandlers.put("server.http", new RefreshServiceOnChangeHandler(this, connectors.containsKey("HTTP")));
+			watchHandlers.put("server.http", new HaltServiceOnChangeHandler(this, connectors.containsKey("HTTP")));
 		if (!watchHandlers.containsKey("server.http.port"))
-			watchHandlers.put("server.http.port", new RefreshServiceOnChangeHandler(this, httpPort));
+			watchHandlers.put("server.http.port", new HaltServiceOnChangeHandler(this, httpPort));
 		
 		
-		int ajpPort = config.getProperty("server.ajp.port", Integer.class, DEFAULT_AJP_PORT);
-		if (config.getProperty("server.ajp", Boolean.class, false)) {
+		int ajpPort = config.getProperty(PropertyReference.key("server.ajp.port"), Integer.class, DEFAULT_AJP_PORT);
+		if (config.getProperty(PropertyReference.key("server.ajp"), Boolean.class, false)) {
 			Ajp13SocketConnector ajp = new Ajp13SocketConnector();
 			ajp.setPort(ajpPort);
 			connectors.put("AJP", ajp);
 		} else connectors.remove("AJP");
 		
 		if (!watchHandlers.containsKey("server.ajp"))
-			watchHandlers.put("server.ajp", new RefreshServiceOnChangeHandler(this, connectors.containsKey("AJP")));
+			watchHandlers.put("server.ajp", new HaltServiceOnChangeHandler(this, connectors.containsKey("AJP")));
 		if (!watchHandlers.containsKey("server.ajp.port"))
-			watchHandlers.put("server.ajp.port", new RefreshServiceOnChangeHandler(this, ajpPort));
+			watchHandlers.put("server.ajp.port", new HaltServiceOnChangeHandler(this, ajpPort));
  
 		// register the connector
 		server.setConnectors(connectors.values().toArray(new Connector[0]));
@@ -196,7 +198,9 @@ public class WebApplicationService implements Service {
 		this.server.setGracefulShutdown(1000);
 	    this.server.setStopAtShutdown(true);
 		this.handlers = new HashMap<String, Handler>();
-		this.watchHandlers = new HashMap<String, RefreshServiceOnChangeHandler>();
+		this.watchHandlers = new HashMap<String, ChangeHandler>();
+		this.watchHandlers.put("dspace.installed", new RefreshServiceOnChangeHandler(this, config.isInstalled()));
+		config.addWatchHandler(this.watchHandlers.get("dspace.installed"), PropertyReference.INSTALLED);
 		this.connectors = new HashMap<String, Connector>();
 	}
 	
@@ -219,8 +223,8 @@ public class WebApplicationService implements Service {
 	public void destroy() throws ServiceException {
 		this.stop();
 		this.server.destroy();
-		for (RefreshServiceOnChangeHandler watcher : this.watchHandlers.values()) 
-			this.config.removeWatchHandler(watcher);
+		for (String key : this.watchHandlers.keySet()) 
+			this.config.removeWatchHandler(this.watchHandlers.get(key), PropertyReference.key(key));
 		this.server = null;
 		this.handlers = null;
 		this.watchHandlers = null;

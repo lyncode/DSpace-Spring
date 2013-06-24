@@ -7,7 +7,10 @@
  */
 package org.dspace.orm;
 
+import org.dspace.install.model.DatabaseInformation;
 import org.dspace.services.api.configuration.ConfigurationService;
+import org.dspace.services.api.configuration.reference.PropertyReference;
+import org.dspace.services.api.configuration.reference.Module;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
@@ -22,20 +25,30 @@ public class DSpaceDataSourceBuilder {
 	private static DriverManagerDataSource driver;
 	
 	public DriverManagerDataSource create () {
-		if (!config.getProperty("dspace.installed", Boolean.class, false))
-			return null;
+		if (!config.isInstalled()) return null;
 		if (driver == null) {
 			driver = new DriverManagerDataSource();
-			driver.setDriverClassName(config.getProperty("db.driver"));
+			driver.setDriverClassName(config.getProperty(PropertyReference.key(Module.DATABASE, "driver")));
 			
-			driver.setUrl(config.getProperty("db.url"));
-			String user = config.getProperty("db.username");
+			driver.setUrl(config.getProperty(PropertyReference.key(Module.DATABASE, "url")));
+			String user = config.getProperty(PropertyReference.key(Module.DATABASE, "username"));
 			if (user != null) {
 				driver.setUsername(user);
-				String pass = config.getProperty("db.password");
+				String pass = config.getProperty(PropertyReference.key(Module.DATABASE, "password"));
 				if (pass != null) driver.setPassword(pass);
 			}
 		}
 		return driver;
 	}
+
+	public DriverManagerDataSource createInstall (DatabaseInformation information) {
+		DriverManagerDataSource driver = new DriverManagerDataSource();
+		driver = new DriverManagerDataSource();
+		driver.setDriverClassName(information.getDriverClass().getName());
+		driver.setUrl(information.getURL());
+		driver.setUsername(information.getUser());
+		driver.setPassword(information.getPass());
+		return driver;
+	}
+	
 }
