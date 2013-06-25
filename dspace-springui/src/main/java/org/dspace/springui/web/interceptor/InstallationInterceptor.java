@@ -15,11 +15,11 @@ public class InstallationInterceptor implements HandlerInterceptor {
 	@Override
 	public boolean preHandle(HttpServletRequest request,
 			HttpServletResponse response, Object handler) throws Exception {
-		if (!request.getPathInfo().contains(INSTALL_REQUEST) && !configurationService.getProperty("dspace.installed", Boolean.class, false)) {
+		if (!request.getPathInfo().contains(INSTALL_REQUEST) && !configurationService.isInstalled()) {
 			response.sendRedirect(request.getContextPath() + INSTALL_REQUEST);
 			return false;
 		}
-		if (configurationService.getProperty("dspace.installed", Boolean.class, false) && request.getPathInfo().contains(INSTALL_REQUEST)) {
+		if (configurationService.isInstalled() && request.getPathInfo().contains(INSTALL_REQUEST)) {
 			response.sendRedirect(request.getContextPath());
 			return false;
 		}
