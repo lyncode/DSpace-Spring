@@ -5,8 +5,14 @@ import java.net.URL;
 import java.util.Map;
 import org.dspace.install.model.GeneralInformation;
 import org.dspace.install.model.Language;
+import org.dspace.services.api.configuration.ConfigurationService;
+import org.springframework.beans.factory.annotation.Autowired;
+
+
+import static org.dspace.services.api.configuration.reference.PropertyReference.*;
 
 public class GeneralStep extends AbstractStep {
+	@Autowired ConfigurationService config;
 
 	@Override
 	public GeneralInformation validate (Map<String, Object> request) throws InstallException {
@@ -35,8 +41,15 @@ public class GeneralStep extends AbstractStep {
 
 	@Override
 	public void install(Object values) throws InstallException {
-		// TODO Auto-generated method stub
+		GeneralInformation info = (GeneralInformation) values;
+		String[] langs = new String[info.getAvailableLanguages().size()];
+		for (int i = 0;i<info.getAvailableLanguages().size();i++)
+			langs[i] = info.getAvailableLanguages().get(i).getCode();
 		
+		config.addProperty(key("dspace.name"), info.getName());
+		config.addProperty(key("dspace.url"), info.getUrl().toString());
+		config.addProperty(key("dspace.lang.default"), info.getDefaultLanguage().getCode());
+		config.addProperty(key("dspace.lang.available"), langs);
 	}
 
 	@Override

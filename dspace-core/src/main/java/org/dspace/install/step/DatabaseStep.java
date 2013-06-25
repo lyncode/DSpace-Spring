@@ -6,10 +6,11 @@ import org.dspace.install.model.DatabaseInformation;
 import org.dspace.orm.DSpaceDataSourceBuilder;
 import org.dspace.orm.DSpaceSessionFactoryBuilder;
 import org.dspace.services.api.configuration.ConfigurationService;
-import org.dspace.services.api.configuration.reference.PropertyReference;
 import org.dspace.services.api.configuration.reference.Module;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import static org.dspace.services.api.configuration.reference.PropertyReference.*;
 
 public class DatabaseStep extends AbstractStep {
 	@Autowired DSpaceDataSourceBuilder datasourceBuilder;
@@ -63,16 +64,18 @@ public class DatabaseStep extends AbstractStep {
 		DatabaseInformation information = (DatabaseInformation) values;
 		SessionFactory session;
 		try {
-			// store configuration
-			config.addProperty(PropertyReference.key(Module.DATABASE, "url"), information.getURL());
-			config.addProperty(PropertyReference.key(Module.DATABASE, "username"), information.getUser());
-			config.addProperty(PropertyReference.key(Module.DATABASE, "password"), information.getPass());
-			config.addProperty(PropertyReference.key(Module.DATABASE, "driver"), information.getDriverClass().getName());
-			
 			// create database
 			session = sessionBuilder.createInstall(information, datasourceBuilder.createInstall(information));
 			session.openSession();
 			session.close();
+			
+			// store configuration
+			config.addProperty(key(Module.DATABASE, "url"), information.getURL());
+			config.addProperty(key(Module.DATABASE, "username"), information.getUser());
+			config.addProperty(key(Module.DATABASE, "password"), information.getPass());
+			config.addProperty(key(Module.DATABASE, "driver"), information.getDriverClass().getName());
+			config.addProperty(key(Module.DATABASE, "dialect"), information.getDialectClass().getName());
+			
 			
 		} catch (IOException e) {
 			throw new InstallException(e);

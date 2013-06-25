@@ -3,8 +3,14 @@ package org.dspace.install.step;
 import java.util.Map;
 import org.dspace.install.model.EmailServerInformation;
 import org.dspace.install.model.EmailServerInformation.ConnectionType;
+import org.dspace.services.api.configuration.ConfigurationService;
+import org.dspace.services.api.configuration.reference.Module;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import static org.dspace.services.api.configuration.reference.PropertyReference.*;
 
 public class EmailServerStep extends AbstractStep {
+	@Autowired ConfigurationService config;
 
 	@Override
 	public void prepare(Map<String, Object> model) {
@@ -44,8 +50,15 @@ public class EmailServerStep extends AbstractStep {
 
 	@Override
 	public void install(Object values) throws InstallException {
-		// TODO Auto-generated method stub
-		
+		EmailServerInformation info = (EmailServerInformation) values;
+
+		config.addProperty(key(Module.EMAIL, "server.host"), info.getHost());
+		config.addProperty(key(Module.EMAIL, "server.port"), info.getPort());
+		config.addProperty(key(Module.EMAIL, "server.type"), info.getConnection().name());
+		if (info.hasAuthentication()) {
+			config.addProperty(key(Module.EMAIL, "server.auth.user"), info.getUsername());
+			config.addProperty(key(Module.EMAIL, "server.auth.pass"), info.getPassword());
+		}
 	}
 
 }

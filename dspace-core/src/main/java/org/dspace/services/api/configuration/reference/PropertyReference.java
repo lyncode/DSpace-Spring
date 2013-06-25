@@ -11,6 +11,8 @@ public class PropertyReference {
 	public static final PropertyReference INSTALLED = PropertyReference.key("dspace.installed");
 	
 	public static PropertyReference key (Module module, String key) {
+		if (module == Module.DEFAULT)
+			return new PropertyReference(DEFAULT_MODULE, key);
 		return new PropertyReference(module.name().toLowerCase(), key);
 	}
 	public static PropertyReference key (String module, String key) {

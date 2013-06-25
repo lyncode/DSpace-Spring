@@ -10,10 +10,12 @@ import org.dspace.install.step.InstallException;
 import org.dspace.services.api.application.Service;
 import org.dspace.services.api.application.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 
 public class DSpaceInstallService implements Service {
 	static Logger log = Logger.getLogger(DSpaceInstallService.class);
 	
+	@Autowired AutowireCapableBeanFactory factory;
 	@Autowired WebApplicationService webappService;
 	private Installer installerThread;
 	
@@ -74,7 +76,7 @@ public class DSpaceInstallService implements Service {
 		if (this.installerThread != null) {
 			if (this.installerThread.isAlive()) {
 				if (this.installerThread.getState() == State.BLOCKED) // Do not override already initialized installation processes
-					this.installerThread.configure(steps, objects);
+					this.installerThread.configure(steps, objects, factory);
 			}
 		}
 	}
@@ -91,10 +93,12 @@ public class DSpaceInstallService implements Service {
 			this.service = service;
 		}
 
-		public void configure (List<AbstractStep> steps, List<InstallObject> objects) {
+		public void configure (List<AbstractStep> steps, List<InstallObject> objects, AutowireCapableBeanFactory factory) {
 			synchronized (this.steps) {
 				this.steps = new ArrayList<AbstractStep>();
 				this.steps.addAll(steps);
+				for (AbstractStep s : this.steps)
+					factory.autowireBean(s);
 				
 				this.inputs = new ArrayList<Object>();
 				

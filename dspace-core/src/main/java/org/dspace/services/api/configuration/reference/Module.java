@@ -7,7 +7,7 @@ package org.dspace.services.api.configuration.reference;
  *
  */
 public enum Module {
-	GENERAL,
+	DEFAULT,
 	DATABASE,
 	EMAIL,
 	STORAGE,
