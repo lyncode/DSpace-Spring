@@ -39,7 +39,7 @@ public class DatabaseStep extends AbstractStep {
 			Class<?> dialectClass = Class.forName(dialect);
 			Class<?> driverClass = org.postgresql.Driver.class;
 			if (this.isOracle(dialect)) 
-				driverClass = oracle.jdbc.OracleDriver.class;
+				driverClass = Class.forName("oracle.jdbc.OracleDriver");
 			DatabaseInformation connection = new DatabaseInformation(host, username, password, schema, port, driverClass, dialectClass);
 			connection.test();
 			return connection;

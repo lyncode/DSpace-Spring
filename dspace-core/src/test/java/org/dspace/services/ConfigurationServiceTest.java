@@ -29,8 +29,10 @@ public class ConfigurationServiceTest {
 	}
 	
 	@Test
-	public void testAddProperty () { // Without configuration file setup it must not be able to add the property
-		 assertFalse(config.addProperty(PropertyReference.key("test"), "test"));
+	public void testAddProperty () {
+		 assertTrue(config.addProperty(PropertyReference.key("test"), "test"));
+		 assertFalse(config.addProperty(PropertyReference.key("test"), "joao"));
+		 assertTrue(config.removeProperty(PropertyReference.key("test")));
 	}
 
 }

@@ -59,7 +59,7 @@ public interface ConfigurationService {
      * @param handler
      * @return
      */
-    public boolean addWatchHandler (ChangeHandler handler, PropertyReference... references);
+    public boolean registerHandler (ChangeHandler handler, PropertyReference... references);
     
     /**
      * Removes an handler
@@ -67,7 +67,7 @@ public interface ConfigurationService {
      * @param handler
      * @return
      */
-    public boolean removeWatchHandler (ChangeHandler handler);
+    public boolean unregisterHandler (ChangeHandler handler);
     
     /**
      * Removes an handler
@@ -75,7 +75,7 @@ public interface ConfigurationService {
      * @param handler
      * @return
      */
-    public boolean removeWatchHandler (ChangeHandler handler, PropertyReference... references);
+    public boolean unregisterHandler (ChangeHandler handler, PropertyReference... references);
     
     
     /**
@@ -102,4 +102,12 @@ public interface ConfigurationService {
      * @return
      */
     public boolean isInstalled ();
+
+    /**
+     * Removes the property
+     * 
+     * @param key
+     * @return
+     */
+	public boolean removeProperty(PropertyReference key);
 }

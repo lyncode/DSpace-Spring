@@ -7,6 +7,7 @@ package org.dspace.services.api.configuration.reference;
  *
  */
 public class PropertyReference {
+	public static final String DEFAULT_MODULE = "dspace";
 	public static final PropertyReference INSTALLED = PropertyReference.key("dspace.installed");
 	
 	public static PropertyReference key (Module module, String key) {
@@ -36,8 +37,13 @@ public class PropertyReference {
 	 * @return the module
 	 */
 	public String getModule() {
-		return module;
+		return (module != null) ? module : DEFAULT_MODULE;
 	}
+	
+	public boolean isDefault () {
+		return module == null;
+	}
+	
 	/**
 	 * @return the key
 	 */

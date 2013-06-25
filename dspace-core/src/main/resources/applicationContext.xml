@@ -23,7 +23,6 @@
 
 	<!-- Application Services -->	
 	<bean id="configurationService" class="org.dspace.services.impl.configuration.DSpaceConfigurationService"></bean>
-	<bean id="configurationLocator" class="org.dspace.services.impl.configuration.DSpaceConfigurationLocator"></bean>
 	<bean id="contextService" class="org.dspace.services.impl.context.DSpaceContextService"></bean>
 	<bean id="authorizationService" class="org.dspace.services.impl.security.authorization.DSpaceAuthorizationService"></bean>
 	<bean id="storageService" class="org.dspace.services.impl.storage.DSpaceStorageService"></bean>

@@ -1,10 +1,7 @@
 package org.dspace.services.impl.configuration.source;
 
 import java.io.File;
-import java.io.IOException;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.event.ConfigurationListener;
 import org.apache.commons.logging.impl.Log4JLogger;
 import org.apache.log4j.Logger;
 import org.dspace.services.api.configuration.ConfigurationServiceException;
@@ -12,7 +9,6 @@ import org.dspace.services.api.configuration.event.ChangeHandler;
 import org.dspace.services.api.configuration.reference.Module;
 import org.dspace.services.api.configuration.reference.PropertyReference;
 import org.dspace.services.impl.application.ConfigurationReloaderService;
-import org.dspace.services.impl.configuration.event.DSpaceConfigurationListener;
 import org.springframework.core.env.PropertySource;
 
 public class DSpacePropertySource extends PropertySource<Object> {
@@ -21,6 +17,7 @@ public class DSpacePropertySource extends PropertySource<Object> {
 	public static final String CONFIG_EXTENSION = ".properties";
 	
 	private PropertiesConfiguration config;
+	private ConfigurationReloaderService reload;
 
 	public DSpacePropertySource(Module name, ConfigurationReloaderService reloader) throws ConfigurationServiceException {
 		this(name.name().toLowerCase(), reloader);
@@ -39,13 +36,18 @@ public class DSpacePropertySource extends PropertySource<Object> {
 			config = new PropertiesConfiguration(f);
 			config.setAutoSave(true);
 			config.setLogger(new Log4JLogger(log));
-			config.setReloadingStrategy(reloader.getReloader(f));
 			
-		} catch (IOException | ConfigurationException e) {
+			this.reload = reloader;
+			this.reload.registerSource(module, config);
+		} catch (Exception e) {
 			throw new ConfigurationServiceException(e);
 		}
 	}
 
+	public File getFile () {
+		return this.config.getFile();
+	}
+	
 	@Override
 	public Object getProperty(String name) {
 		return this.config.getProperty(name);
@@ -57,34 +59,29 @@ public class DSpacePropertySource extends PropertySource<Object> {
 	}
 	
 	public boolean addProperty (String name, Object value) {
+		if (this.config.containsKey(name))
+			return false;
 		this.config.addProperty(name, value);
 		return true;
 	}
 	
-	public void registerWatcher (ChangeHandler handler, String name) {
-		DSpaceConfigurationListener listener = new DSpaceConfigurationListener(handler, PropertyReference.key(this.getName(), name), this.config);
-		this.config.addConfigurationListener(listener);
+	public void registerHandler (ChangeHandler handler, String name) {
+		this.reload.registerHandler(handler, PropertyReference.key(this.getName(), name));
 	}
 	
-	public void unregisterWatcher (ChangeHandler handler) {
-		for (ConfigurationListener l : config.getConfigurationListeners()) {
-			if (l instanceof DSpaceConfigurationListener) {
-				DSpaceConfigurationListener ls = (DSpaceConfigurationListener) l;
-				if (ls.getHandler() == handler) { // Same instance
-					config.removeConfigurationListener(l);
-				}
-			}
-		}
+	public void unregisterHandler (ChangeHandler handler) {
+		this.reload.unregisterHandler(handler);
 	}
 
-	public void unregisterWatcher (ChangeHandler handler, String name) {
-		for (ConfigurationListener l : config.getConfigurationListeners()) {
-			if (l instanceof DSpaceConfigurationListener) {
-				DSpaceConfigurationListener ls = (DSpaceConfigurationListener) l;
-				if (ls.getHandler() == handler && ls.getReference().getKey().equals(name)) { // Same instance && same name
-					config.removeConfigurationListener(l);
-				}
-			}
+	public void unregisterHandler (ChangeHandler handler, String name) {
+		this.reload.unregisterHandler(handler, PropertyReference.key(this.getName(), name));
+	}
+
+	public boolean removeProperty(String key) {
+		if (this.config.containsKey(key)) {
+			this.config.clearProperty(key);
+			return true;
 		}
+		return false;
 	}
 }

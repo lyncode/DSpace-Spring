@@ -61,7 +61,9 @@ public class WebApplicationServiceTest {
 		InputStream input = conn.getInputStream();
 		assertNotNull(input);
 		input.close();
-		webService.refresh();
+		webService.destroy();
+		webService.init();
+		webService.start();
 		while (webService.isStopping() || webService.isStarting() || !webService.isRunning())
 			Thread.sleep(1500);
 		assertTrue(webService.isRunning());

@@ -42,6 +42,7 @@ public class WebApplicationService implements Service {
 
 	@Override
 	public synchronized void refresh() throws ServiceException {
+		log.debug("Trying to refresh service");
 		((ConfigurableApplicationContext) applicationContext).refresh();
 	}
 	
@@ -64,6 +65,7 @@ public class WebApplicationService implements Service {
 
 	@Override
 	public synchronized void start() throws ServiceException {
+		log.debug("Trying to start service");
 		if (this.server == null)
 			throw new ServiceException("Service not correctly initialized");
 
@@ -95,6 +97,7 @@ public class WebApplicationService implements Service {
 
 	@Override
 	public synchronized void stop() throws ServiceException {
+		log.debug("Trying to stop service");
 		try {
 			if (this.server != null)
 				this.server.stop();
@@ -157,7 +160,7 @@ public class WebApplicationService implements Service {
 				handlers.put(name, webapp);
 				
 				HaltServiceOnChangeHandler watcher = new HaltServiceOnChangeHandler(this, this.isWebappActive(name));
-				config.addWatchHandler(watcher, PropertyReference.key(this.getWebappActiveProperty(name)));
+				config.registerHandler(watcher, PropertyReference.key(this.getWebappActiveProperty(name)));
 				watchHandlers.put(name, watcher);
 			}
 		}
@@ -200,7 +203,7 @@ public class WebApplicationService implements Service {
 		this.handlers = new HashMap<String, Handler>();
 		this.watchHandlers = new HashMap<String, ChangeHandler>();
 		this.watchHandlers.put("dspace.installed", new RefreshServiceOnChangeHandler(this, config.isInstalled()));
-		config.addWatchHandler(this.watchHandlers.get("dspace.installed"), PropertyReference.INSTALLED);
+		config.registerHandler(this.watchHandlers.get("dspace.installed"), PropertyReference.INSTALLED);
 		this.connectors = new HashMap<String, Connector>();
 	}
 	
@@ -224,7 +227,7 @@ public class WebApplicationService implements Service {
 		this.stop();
 		this.server.destroy();
 		for (String key : this.watchHandlers.keySet()) 
-			this.config.removeWatchHandler(this.watchHandlers.get(key), PropertyReference.key(key));
+			this.config.unregisterHandler(this.watchHandlers.get(key), PropertyReference.key(key));
 		this.server = null;
 		this.handlers = null;
 		this.watchHandlers = null;
