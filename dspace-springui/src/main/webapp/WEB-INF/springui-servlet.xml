@@ -17,7 +17,13 @@
  	<mvc:interceptors>
  		<mvc:interceptor>
  			<mvc:mapping path="/**"/>
- 			<bean class="org.dspace.springui.web.interceptor.InstallationInterceptor" />
+ 			<bean class="org.dspace.springui.web.interceptor.InstallationInterceptor">
+ 				<property name="exceptions">
+ 					<list>
+ 						<value>^/rest.*</value>
+ 					</list>
+ 				</property>
+ 			</bean>
  		</mvc:interceptor>
  	</mvc:interceptors>
  	
@@ -53,4 +59,14 @@
     </bean>
     
 	<bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver" />
+	
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+	    <property name="messageConverters">
+	    	<list>
+	    		<ref bean="json" />
+	    	</list>
+	    </property>
+	</bean>
+	
+	<bean id="json" class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter" />
 </beans>

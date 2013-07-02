@@ -34,6 +34,7 @@ public class DatabaseStep extends AbstractStep {
 		try {
 			port = Integer.parseInt(portI);
 		} catch (Exception e) {
+			
 			throw new InstallException("Malformed port number", e);
 		}
 		try {

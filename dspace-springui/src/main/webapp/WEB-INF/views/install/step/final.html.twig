@@ -7,7 +7,7 @@ require([
     'lyncode/services/install'     
 ], function ($, InstallService) {
 	var service = new InstallService({
-		errorMessage = '{{ "Something went wrong. Please refresh your browser." | trans }}',
+		errorMessage: '{{ "Something went wrong. Please refresh your browser." | trans }}',
 		okCallback: function () {
 			$('#progressBar').hide();
 			$('#confirmBox').show();
@@ -30,7 +30,9 @@ require([
 		</div>
 		{% else %}
 		<div id="progressBar">
-			<h3>{{ 'Installing...' | trans }}</h3>
+			<div class="alert">
+				<b>{{ 'Installing' | trans }}</b> {{ "DSpace is being installed, please, wait." | trans }}
+			</div>
 			<div class="progress progress-striped active">
 				<div class="bar" style="width: 60%;"></div>
 			</div>

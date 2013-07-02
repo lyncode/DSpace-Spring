@@ -1,6 +1,7 @@
 define([], function () {
     "use strict";
 
+    var initializing = false;
     // The base Class implementation (does nothing)
     var Class = function () {
     };

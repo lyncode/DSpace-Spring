@@ -2,7 +2,7 @@ package org.dspace.springui.web.rest;
 
 import java.io.Serializable;
 
-public class RestResult<T> implements Serializable {
+public class RestResult<T extends Serializable> implements Serializable {
 	private static final long serialVersionUID = 3762604003204049233L;
 	private T element;
 	private boolean error;
@@ -23,7 +23,7 @@ public class RestResult<T> implements Serializable {
 	/**
 	 * @return the element
 	 */
-	public T getElement() {
+	public Serializable getElement() {
 		return element;
 	}
 

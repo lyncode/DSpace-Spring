@@ -50,6 +50,7 @@ public class EmailServerStep extends AbstractStep {
 
 	@Override
 	public void install(Object values) throws InstallException {
+		if (values == null) return; // Stop!
 		EmailServerInformation info = (EmailServerInformation) values;
 
 		config.addProperty(key(Module.EMAIL, "server.host"), info.getHost());

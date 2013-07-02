@@ -1,6 +1,7 @@
 package org.dspace.app;
 
 import java.util.Map;
+import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.dspace.services.api.application.Service;
 import org.dspace.services.api.application.ServiceException;
@@ -9,6 +10,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class Starter {
 	private static Logger log = Logger.getLogger(Starter.class);
 	public static void main(String[] args) {
+		BasicConfigurator.configure();
 		try {
 			final ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("applicationContext.xml");
 			final Map<String, Service> services = applicationContext.getBeansOfType(Service.class);

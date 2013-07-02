@@ -1,5 +1,6 @@
 package org.dspace.services.impl.application;
 
+import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.xml.DOMConfigurator;
 import org.dspace.services.api.application.Service;
 import org.dspace.services.api.application.ServiceException;
@@ -29,6 +30,7 @@ public class ConfigureLoggerService implements Service {
 
 	@Override
 	public void init() throws ServiceException {
+		BasicConfigurator.resetConfiguration();
 		DOMConfigurator.configure(CONFIG);
 	}
 

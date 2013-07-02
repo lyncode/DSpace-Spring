@@ -12,6 +12,18 @@
 		<div class="row-fluid">
 			<form class="form-horizontal" method="POST" action="{{ concat('/install/step/', nextStep) | path }}">
 			  <div class="control-group">
+			    <label class="control-label" for="dialect">{{ 'Dialect' | trans }}</label>
+			    <div class="controls">
+			      <select id="dialect" name="dialect">
+			      	<option value="org.hibernate.dialect.PostgreSQL82Dialect">{{ 'PostgreSQL 8.2 (or later)' | trans }}</option>
+			      	<option value="org.hibernate.dialect.PostgreSQL81Dialect">{{ 'PostgreSQL 8.1' }}</option>
+			      	<option value="org.hibernate.dialect.Oracle9iDialect">{{ 'Oracle 9i (or later)' | trans }}</option>
+			      	<option value="org.hibernate.dialect.Oracle8iDialect">{{ 'Oracle 8i' | trans }}</option>
+			      	<option value="org.hibernate.dialect.Oracle10gDialect">{{ 'Oracle 10g' | trans }}</option>
+			      </select>
+			    </div>
+			  </div>
+			  <div class="control-group">
 			    <label class="control-label" for="host">{{ 'Host' | trans }}</label>
 			    <div class="controls">
 			      <input required type="text" id="host" name="host" placeholder="{{ 'Host' | trans }}" value="{{ request.getParameter('host') }}" />

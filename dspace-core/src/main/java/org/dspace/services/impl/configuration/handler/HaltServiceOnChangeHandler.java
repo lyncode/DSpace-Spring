@@ -19,13 +19,14 @@ public class HaltServiceOnChangeHandler implements ChangeHandler {
 	private void myHandle(ChangeEventInformation info) throws ServiceException {
 		if (info.getNewValue() == null && this.oldValue == null)
 			return;
-		if (info.getNewValue() != null )
 		if (info.getNewValue() == null && this.oldValue != null) {
+			service.stop();
 			service.destroy();
 			service.init();
 			service.start();
 		} else {
 			if (!info.getNewValue().equals(this.oldValue)) {
+				service.stop();
 				service.destroy();
 				service.init();
 				service.start();

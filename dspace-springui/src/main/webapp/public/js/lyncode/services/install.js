@@ -1,7 +1,7 @@
 define([
     'jquery',
-    'lyncode/operations/server',
-    'lyncode/core/object'
+    'lyncode/core/object',
+    'lyncode/operations/server'
 ], function ($, Class, ServerOperations) {
    return Class.extend({
         init: function (args) {

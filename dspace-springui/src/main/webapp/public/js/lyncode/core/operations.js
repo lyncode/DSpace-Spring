@@ -10,6 +10,7 @@ define([
 		get: function (url, successCallback, errorCallback) {
 			$.ajax({
 				type: 'GET',
+				contentType: "application/json",
 				url: buildURL(url),
 				cache: false
 				
@@ -21,7 +22,8 @@ define([
 		post: function (url, data, successCallback, errorCallback) {
 			$.ajax({
 				type: 'POST',
-				data: data,
+				contentType: "application/json",
+				data: JSON.stringify(data),
 				url: buildURL(url),
 				cache: false
 			})
